@@ -1,0 +1,2 @@
+EEUU;Costa Rica;Macrovirus;Carbanak;50;120;
+EEUU;Francia;Rotura de contrasena;Iron Tiger;90;110;

@@ -1,10 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
 
 typedef struct ListaAtaques ListaAtaques;
 typedef struct ListaDelincuentes ListaDelincuentes;
 typedef struct Nodo Nodo;
+typedef struct vertice vertice;
+typedef struct arista arista;
+typedef struct grafo grafo;
+void menu();
+
 typedef char string[300];
 
 typedef struct
@@ -15,7 +22,7 @@ typedef struct
     string canales;
     string tipoArchivo;
     int tamano;
-}informacionCiberataque;
+}tipoCiberataque;
 
 typedef struct
 {
@@ -27,12 +34,17 @@ typedef struct
     int tamano;
 }informacionCiberdelincuente;
 
-struct Nodo
+typedef struct
 {
-    informacionCiberataque dato;
-    informacionCiberdelincuente dato2;
-    Nodo *siguiente;
-};
+	string paisOrigen;
+	string paisDestino;
+	string tipoCiberataque;
+	string nombreCiberdelincuente;
+	string tipoArchivo;
+	string cantidadDatos;
+	string tiempo;
+	int tamano;
+}informacionCiberataques; 
 
 struct ListaAtaques
 {
@@ -47,6 +59,13 @@ ListaAtaques *lista1(void)
 	return A;
 }
 
+struct Nodo
+{
+    tipoCiberataque dato;
+    informacionCiberdelincuente dato2;
+    Nodo *siguiente;
+};
+
 struct ListaDelincuentes
 {
     Nodo *inicio2;
@@ -60,71 +79,91 @@ ListaDelincuentes *lista2(void)
 	return D;
 }
 
+struct grafo
+{
+	vertice *inicioG;
+};
+
+struct vertice
+{
+	vertice *siguiente;
+	arista *ady;
+	string nombre;
+};
+
+struct arista
+{
+	arista *siguiente;
+	vertice *ady;	
+	informacionCiberataques dato3;
+};
+
+vertice *inicioG = NULL;
+
 //-----------------------  1. Registro de tipo de ciberataque --------------------------------//
 
-void lecturaDatosAtaques(informacionCiberataque *infoA)
+void lecturaDatosAtaques(tipoCiberataque *infoT)
 {
     int contador = 0;
 
     printf("\nIndique el codigo: ");
-    gets(infoA->codigoA);
+    gets(infoT->codigoA);
 
     printf("\nIngrese el nombre: ");
-    gets(infoA->nombre);
+    gets(infoT->nombre);
 
     printf("\nIngrese la descripcion: ");
-    gets(infoA->descripcion);
+    gets(infoT->descripcion);
 
     printf("\nIngrese los canales por donde se puede dar el ataque: ");
-    gets(infoA->canales);
+    gets(infoT->canales);
 }
 
-void insercionArchivosAtaques(informacionCiberataque *infoA)
+void insercionArchivosAtaques(tipoCiberataque *infoT)
 {
     int indice = 0;
 
     FILE *archivo;
     string ruta;
-    strcpy(ruta, ".\\InfoAtaques\\");
-    strcat(ruta, infoA->codigoA);
-    strcpy(infoA->tipoArchivo, ruta);
-    strcat(infoA->tipoArchivo, ".txt");
+    strcpy(ruta, ".\\tipoAtaques\\");
+    strcat(ruta, infoT->codigoA);
+    strcpy(infoT->tipoArchivo, ruta);
+    strcat(infoT->tipoArchivo, ".txt");
 
-    archivo = fopen(infoA->tipoArchivo, "a+");
-    fprintf(archivo, "%s; %s; %s; %s;", infoA->codigoA, infoA->nombre, infoA->descripcion, infoA->canales);
+    archivo = fopen(infoT->tipoArchivo, "a+");
+    fprintf(archivo, "%s; %s; %s; %s;", infoT->codigoA, infoT->nombre, infoT->descripcion, infoT->canales);
 }
 
-void creacionTxtCodigo(informacionCiberataque *infoA)
+void creacionTxtCodigo(tipoCiberataque *infoT)
 {
     FILE *archivo;
     string ruta;
-    strcpy(ruta,".\\InfoAtaques\\Codigos");
-    strcpy(infoA->tipoArchivo, ruta);
-    strcat(infoA->tipoArchivo, ".txt");
+    strcpy(ruta,".\\tipoAtaques\\Codigos");
+    strcpy(infoT->tipoArchivo, ruta);
+    strcat(infoT->tipoArchivo, ".txt");
 
-    archivo = fopen(infoA->tipoArchivo, "a+");
-    fprintf(archivo, "%s;", infoA->codigoA);
+    archivo = fopen(infoT->tipoArchivo, "a+");
+    fprintf(archivo, "%s;", infoT->codigoA);
 }
 
-void insertarAtaque(ListaAtaques *A, informacionCiberataque infoA)
+void insertarAtaque(ListaAtaques *A, tipoCiberataque infoT)
 {
 	int contador = 0;
 	int cantidadPreguntas;
 
     
-	printf("Cuantos tipos de ciberataque desea registrar ");
+	printf("Cuantos tipos de ciberataque desea registrar: ");
 	scanf("%d", &cantidadPreguntas);
 	getchar();
-	printf("\n\n");
+	printf("\n");
 	
-	//infoV.cantvehiculos = 1;
-    lecturaDatosAtaques(&infoA);
+    lecturaDatosAtaques(&infoT);
     Nodo *n, *aux;
 
     if(A->inicio == NULL) //Valida si la lista esta vacia
     {
         A->inicio = (Nodo *) malloc(sizeof(Nodo));
-        A->inicio->dato = infoA;
+        A->inicio->dato = infoT;
         A->inicio->siguiente = NULL;	
     }
     else
@@ -137,41 +176,41 @@ void insertarAtaque(ListaAtaques *A, informacionCiberataque infoA)
         }
         aux->siguiente = (Nodo *) malloc(sizeof(Nodo));
         aux->siguiente->siguiente = NULL;
-        aux->siguiente->dato = infoA;
+        aux->siguiente->dato = infoT;
     }
     //infoV.cantvehiculos++;
     
-    insercionArchivosAtaques(&infoA);
-    creacionTxtCodigo(&infoA);
+    insercionArchivosAtaques(&infoT);
+    creacionTxtCodigo(&infoT);
 	printf("\n");
 	printf("El registro de los ataques se ha realizado exitosamente\n");
 }
 
 //-----------------------  Eliminar información --------------------------------//
 
-void eliminarAtaqueTotal(informacionCiberataque *infoA, string lista[])
+void eliminarAtaqueTotal(tipoCiberataque *infoT, string lista[])
 {	
 	FILE *archivoAux;
 	
 	int indice = 0;
 
-	while(indice < infoA->tamano)
+	while(indice < infoT->tamano)
 	{
-		if(strcmp(lista[indice], infoA->codigoA) == 0)
+		if(strcmp(lista[indice], infoT->codigoA) == 0)
 		strcpy(lista[indice], "");
 		indice++;
 	}
 
 	string rutaAux;
-	strcpy(rutaAux, ".\\InfoAtaques\\Codigos");
-	strcpy(infoA->tipoArchivo, rutaAux);
-	strcat(infoA->tipoArchivo, ".txt");
-	archivoAux = fopen(infoA->tipoArchivo, "a+");
+	strcpy(rutaAux, ".\\tipoAtaques\\Codigos");
+	strcpy(infoT->tipoArchivo, rutaAux);
+	strcat(infoT->tipoArchivo, ".txt");
+	archivoAux = fopen(infoT->tipoArchivo, "a+");
 	
 	indice = 0;
-	while(indice < infoA->tamano)
+	while(indice < infoT->tamano)
 	{	
-		if(indice == (infoA->tamano)-1)
+		if(indice == (infoT->tamano)-1)
 		{
 			fprintf(archivoAux,"%s", lista[indice]);
 		}
@@ -183,23 +222,23 @@ void eliminarAtaqueTotal(informacionCiberataque *infoA, string lista[])
 	}
 }
 
-void datosAtaquesTotales(informacionCiberataque *infoA)
+void datosAtaquesTotales(tipoCiberataque *infoT)
 {
 	FILE *archivo = NULL; 
 	
 	string listaAtaques[100];
-	infoA->tamano = 0;
+	infoT->tamano = 0;
 	int indice = 0;
 	char linea[300];
 	char *delimitador = ";";
 	char *token = NULL;
 	
 	string ruta;
-	strcpy(ruta, ".\\InfoAtaques\\Codigos");
-	strcpy(infoA->tipoArchivo, ruta);
-	strcat(infoA->tipoArchivo, ".txt");
+	strcpy(ruta, ".\\tipoAtaques\\Codigos");
+	strcpy(infoT->tipoArchivo, ruta);
+	strcat(infoT->tipoArchivo, ".txt");
 	
-	archivo = fopen(infoA->tipoArchivo, "a+");
+	archivo = fopen(infoT->tipoArchivo, "a+");
 	
 	if(archivo)
 	{
@@ -209,7 +248,7 @@ void datosAtaquesTotales(informacionCiberataque *infoA)
    			while( token != NULL ) 
 			{
       			strcpy(listaAtaques[indice], token);
-      			infoA->tamano++;
+      			infoT->tamano++;
       			indice++;
     
       			token = strtok(NULL, delimitador);
@@ -217,38 +256,38 @@ void datosAtaquesTotales(informacionCiberataque *infoA)
 		}
 	}
 	fclose(archivo);
-	remove(infoA->tipoArchivo);
+	remove(infoT->tipoArchivo);
 
-	eliminarAtaqueTotal(infoA, listaAtaques);
+	eliminarAtaqueTotal(infoT, listaAtaques);
 }
 
-void eliminarCiberataque(informacionCiberataque *infoA)
+void eliminarCiberataque(tipoCiberataque *infoT)
 {
 	FILE *archivo;
 	string ruta;
-	strcpy(ruta, ".\\InfoAtaques\\");
+	strcpy(ruta, ".\\tipoAtaques\\");
 	
 	printf("Ingrese el codigo del tipo de ataque que desea eliminar: ");
-	gets(infoA->codigoA);
+	gets(infoT->codigoA);
 	
-	strcat(ruta, infoA->codigoA);
-	strcpy(infoA->tipoArchivo, ruta);
-	strcat(infoA->tipoArchivo, ".txt");
+	strcat(ruta, infoT->codigoA);
+	strcpy(infoT->tipoArchivo, ruta);
+	strcat(infoT->tipoArchivo, ".txt");
 	
-	archivo = fopen(infoA->tipoArchivo, "w");
+	archivo = fopen(infoT->tipoArchivo, "w");
 
 	fclose(archivo);
 	
-	remove(infoA->tipoArchivo);
+	remove(infoT->tipoArchivo);
 
-	datosAtaquesTotales(infoA);
+	datosAtaquesTotales(infoT);
 	printf("\nEl tipo de ciberataque ha sido eliminado\n");
 	exit(-1);
 }
 
-//-----------------------  Modificar información --------------------------------//
+//-----------------------  Modificar informacion --------------------------------//
 
-void extraerListaAtaques(informacionCiberataque *infoA, string lista[])
+void extraerListaAtaques(tipoCiberataque *infoT, string lista[])
 {	
 	FILE *archivoAux;
 	
@@ -287,13 +326,13 @@ void extraerListaAtaques(informacionCiberataque *infoA, string lista[])
     } 
 	
 	string rutaAux;
-	strcpy(rutaAux, ".\\InfoAtaques\\");
-	strcat(rutaAux,infoA->codigoA);
-	strcpy(infoA->tipoArchivo, rutaAux);
-	strcat(infoA->tipoArchivo, ".txt");
-	archivoAux = fopen(infoA->tipoArchivo, "a+");
+	strcpy(rutaAux, ".\\tipoAtaques\\");
+	strcat(rutaAux,infoT->codigoA);
+	strcpy(infoT->tipoArchivo, rutaAux);
+	strcat(infoT->tipoArchivo, ".txt");
+	archivoAux = fopen(infoT->tipoArchivo, "a+");
 	
-	while(indice < infoA->tamano)
+	while(indice < infoT->tamano)
 	{	
 		fprintf(archivoAux,"%s;", lista[indice]);
 		indice++;
@@ -305,27 +344,27 @@ void extraerListaAtaques(informacionCiberataque *infoA, string lista[])
 	exit(-1);
 }
 
-void modificarInfoV(informacionCiberataque *infoA)
+void modificarInfoV(tipoCiberataque *infoT)
 {
 	FILE *archivo = NULL; 
 	
 	string listaAtaques[100];
-	infoA->tamano = 0;
+	infoT->tamano = 0;
 	int indice = 0;
 	char linea[300];
 	char *delimitador = ";";
 	char *token = NULL;
 	
 	printf("Ingrese el codigo del tipo de ciberataque que desea modificar: ");
-	gets(infoA->codigoA);
+	gets(infoT->codigoA);
 	
 	string ruta;
-	strcpy(ruta, ".\\InfoAtaques\\");
-	strcat(ruta, infoA->codigoA);
-	strcpy(infoA->tipoArchivo, ruta);
-	strcat(infoA->tipoArchivo, ".txt");
+	strcpy(ruta, ".\\tipoAtaques\\");
+	strcat(ruta, infoT->codigoA);
+	strcpy(infoT->tipoArchivo, ruta);
+	strcat(infoT->tipoArchivo, ".txt");
 	
-	archivo = fopen(infoA->tipoArchivo, "a+");
+	archivo = fopen(infoT->tipoArchivo, "a+");
 	
 	if(archivo)
 	{
@@ -335,7 +374,7 @@ void modificarInfoV(informacionCiberataque *infoA)
    			while( token != NULL ) 
 			{
       			strcpy(listaAtaques[indice], token);
-      			infoA->tamano++;
+      			infoT->tamano++;
       			indice++;
     
       			token = strtok(NULL, delimitador);
@@ -343,14 +382,14 @@ void modificarInfoV(informacionCiberataque *infoA)
 		}
 	}
 	fclose(archivo);
-	remove(infoA->tipoArchivo);
+	remove(infoT->tipoArchivo);
 
-	extraerListaAtaques(infoA, listaAtaques);
+	extraerListaAtaques(infoT, listaAtaques);
 }
 
 //-----------------------  Consultar informacion --------------------------------//
 
-void mostrarAtaquesTotales(informacionCiberataque *infoA, string lista[])
+void mostrarAtaquesTotales(tipoCiberataque *infoT, string lista[])
 {
 	FILE *archivo = NULL; 
 	
@@ -361,15 +400,15 @@ void mostrarAtaquesTotales(informacionCiberataque *infoA, string lista[])
 	string ruta;
 	
 
-	while(indice2 < infoA->tamano)
+	while(indice2 < infoT->tamano)
 	{
 		int indice = 0;
-		strcpy(ruta, ".\\InfoAtaques\\");
+		strcpy(ruta, ".\\tipoAtaques\\");
 		strcat(ruta,lista[indice2]);
-		strcpy(infoA->tipoArchivo, ruta);
-		strcat(infoA->tipoArchivo, ".txt");
+		strcpy(infoT->tipoArchivo, ruta);
+		strcat(infoT->tipoArchivo, ".txt");
 
-		archivo = fopen(infoA->tipoArchivo, "a+");
+		archivo = fopen(infoT->tipoArchivo, "a+");
 
 		printf("\n\n ");
 		if(archivo)
@@ -404,23 +443,23 @@ void mostrarAtaquesTotales(informacionCiberataque *infoA, string lista[])
 	printf("\n");
 }
 
-void extraerDatosAtaques(informacionCiberataque *infoA)
+void extraerDatosAtaques(tipoCiberataque *infoT)
 {
 	FILE *archivo = NULL; 
 
 	string listaAtaques[100];
-	infoA->tamano = 0;
+	infoT->tamano = 0;
 	int indice = 0;
 	char linea[300];
 	char *delimitador = ";";
 	char *token = NULL;
 	
 	string ruta;
-	strcpy(ruta, ".\\InfoAtaques\\Codigos");
-	strcpy(infoA->tipoArchivo, ruta);
-	strcat(infoA->tipoArchivo, ".txt");
+	strcpy(ruta, ".\\tipoAtaques\\Codigos");
+	strcpy(infoT->tipoArchivo, ruta);
+	strcat(infoT->tipoArchivo, ".txt");
 	
-	archivo = fopen(infoA->tipoArchivo, "a+");
+	archivo = fopen(infoT->tipoArchivo, "a+");
 	
 	if(archivo)
 	{
@@ -430,7 +469,7 @@ void extraerDatosAtaques(informacionCiberataque *infoA)
    			while( token != NULL ) 
 			{
       			strcpy(listaAtaques[indice], token);
-      			infoA->tamano++;
+      			infoT->tamano++;
       			indice++;
     
       			token = strtok(NULL, delimitador);
@@ -438,11 +477,10 @@ void extraerDatosAtaques(informacionCiberataque *infoA)
 		}
 	}
 	fclose(archivo);
-	mostrarAtaquesTotales(infoA, listaAtaques);
+	mostrarAtaquesTotales(infoT, listaAtaques);
 }
 
 //------------------------ 2. Registro de ciberdelincuente --------------------------------//
-
 
 void lecturaDatosDelincuente(informacionCiberdelincuente *infoD)
 {	
@@ -488,7 +526,7 @@ void insercionCodigos(informacionCiberdelincuente *infoD)
 	fprintf(archivo,"%s; ", infoD->codigoD);
 }
 
-void insertarDatosCliente(ListaDelincuentes *D, informacionCiberdelincuente infoD)
+void insertarDatosDelincuente(ListaDelincuentes *D, informacionCiberdelincuente infoD)
 {
 	lecturaDatosDelincuente(&infoD);
 	Nodo *n, *aux;
@@ -815,25 +853,1125 @@ void extraerDatosDelincuentes(informacionCiberdelincuente *infoD)
 	mostrarDelincuentesTotales(infoD, listaDelincuentes);
 }
 
+//-----------------------  4. Gestion de informacion de ciberataques --------------------------------//
+
+void archivosAtaques(informacionCiberataques *infoA)
+{
+	FILE *archivo; 
+	string ruta;
+	strcpy(ruta, ".\\InfoAtaques\\");
+	
+	strcat(ruta, infoA->paisOrigen);
+	strcpy(infoA->tipoArchivo, ruta);
+	strcat(infoA->tipoArchivo, ".txt");
+	
+	archivo = fopen(infoA->tipoArchivo, "a+");
+	if(archivo == NULL)
+	{
+		fprintf(archivo,"%s;%s;%s;%s;%s;%s;", infoA->paisOrigen, infoA->paisDestino, infoA->tipoCiberataque, infoA->nombreCiberdelincuente, infoA->cantidadDatos, infoA->tiempo);
+	}
+	else
+	{
+		fprintf(archivo,"\n%s;%s;%s;%s;%s;%s;", infoA->paisOrigen, infoA->paisDestino, infoA->tipoCiberataque, infoA->nombreCiberdelincuente, infoA->cantidadDatos, infoA->tiempo);
+	}
+	fclose(archivo);
+}
+
+void insercionPaises(informacionCiberataques *infoA)
+{
+	FILE *archivo = NULL; 
+
+	string listaPaises[100];
+	infoA->tamano = 0;
+	int indice = 0;
+	char linea[300];
+	char *delimitador = ";";
+	char *token = NULL;
+	
+	string ruta;
+	strcpy(ruta, ".\\InfoAtaques\\Paises");
+	strcpy(infoA->tipoArchivo, ruta);
+	strcat(infoA->tipoArchivo, ".txt");
+	
+	archivo = fopen(infoA->tipoArchivo, "a+");
+	
+	if(archivo)
+	{
+		while(fgets(linea, 300, archivo))
+		{
+   			token = strtok(linea, delimitador);
+   			while( token != NULL ) 
+			{
+      			strcpy(listaPaises[indice], token);
+      			infoA->tamano++;
+      			indice++;
+    
+      			token = strtok(NULL, delimitador);
+   			}
+		}
+	}
+	fclose(archivo);
+	
+	indice = 0;
+	while(indice < infoA->tamano)
+	{
+		if(strcmp(listaPaises[indice], infoA->paisOrigen) == 0)
+		{
+			return;
+		}
+		indice++;
+	}
+	
+	strcpy(ruta, ".\\InfoAtaques\\Paises");
+	
+	strcpy(infoA->tipoArchivo, ruta);
+	strcat(infoA->tipoArchivo, ".txt");
+	
+	archivo = fopen(infoA->tipoArchivo, "a+");
+	fprintf(archivo,"%s; ", infoA->paisOrigen);
+}
+
+void datosAtaque(informacionCiberataques *infoA)
+{	
+	printf("Ingrese el nombre del pais de origen: ");
+	gets(infoA->paisOrigen);
+	
+	printf("\nIngrese el nombre del pais de destino: ");
+	gets(infoA->paisDestino);
+	
+	printf("\nIngrese el tipo de ciberataque: ");
+	gets(infoA->tipoCiberataque);
+	
+	printf("\nIngrese el nombre del ciberdelincuente que realizo el ataque: ");
+	gets(infoA->nombreCiberdelincuente);
+
+	printf("\nIngrese la cantidad de datos en gigabytes que fueron afectados: ");
+	gets(infoA->cantidadDatos);
+
+	printf("\nIngrese el tiempo en segundos que tardo el ciberataque: ");
+	gets(infoA->tiempo);
+
+	archivosAtaques(infoA);
+	insercionPaises(infoA);
+	
+	printf("\n");
+	printf("La informacion se registro exitosamente");
+}
+
+bool vacio()
+{
+	if(inicioG == NULL)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+vertice *getVertice(string nombre)
+{
+	vertice *aux;
+	aux = inicioG;
+
+	while(aux != NULL)
+	{
+		if(strcmp(aux->nombre, nombre) == 0)
+		{
+			return aux;
+		}
+		aux = aux->siguiente;
+	}
+	return NULL;
+}
+
+void insertarArista(informacionCiberataques infoA, string lista[])
+{
+	FILE *archivo = NULL; 
+
+	string listaPaises[100];
+	string listaInfo[100];
+	int indice = 0;
+	char linea[300];
+	char *delimitador1 = "\n";
+	char *delimitador2 = ";";
+	char *token = NULL;
+	string ruta;
+	
+	while(indice < infoA.tamano)
+	{
+		int tamanoInfo = 0;
+		int indice2= 0;
+		strcpy(ruta, ".\\InfoAtaques\\");
+		strcat(ruta, lista[indice]);
+		strcpy(infoA.tipoArchivo, ruta);
+		strcat(infoA.tipoArchivo, ".txt");
+
+		archivo = fopen(infoA.tipoArchivo, "a+");
+
+		if(archivo)
+		{
+			while(fgets(linea, 300, archivo))
+			{
+				token = strtok(linea, delimitador1);
+				while( token != NULL ) 
+				{
+					strcpy(listaPaises[indice2], token);
+					tamanoInfo++;
+					indice2++;
+
+					token = strtok(NULL, delimitador1);
+				}
+			}
+		}
+		fclose(archivo);
+
+		int indice3 = 0;
+
+		while(indice3 < tamanoInfo)
+		{
+			indice2 = 0;
+			token = strtok(listaPaises[indice3], delimitador2);
+			while( token != NULL ) 
+			{
+				strcpy(listaInfo[indice2], token);
+				indice2++;
+
+				token = strtok(NULL, delimitador2);
+			}
+
+			vertice *origen = getVertice(listaInfo[0]);
+			vertice *destino = getVertice(listaInfo[1]);
+			strcpy(infoA.tipoCiberataque, listaInfo[2]);
+			strcpy(infoA.nombreCiberdelincuente, listaInfo[3]);
+			strcpy(infoA.cantidadDatos, listaInfo[4]);
+			strcpy(infoA.tiempo, listaInfo[5]);
+
+			arista *nueva = (arista *)malloc(sizeof(arista));
+			nueva->siguiente = NULL;
+			nueva->ady = NULL;
+
+			arista *aux;
+			aux = origen->ady;
+			if(aux == NULL)
+			{
+				origen->ady = nueva;
+				nueva->ady = destino;
+				nueva->dato3 = infoA;
+			}
+			else
+			{
+				while(aux->siguiente != NULL)
+				{
+					aux = aux->siguiente;
+				}
+				aux->siguiente = nueva;
+				nueva->ady = destino;
+				nueva->dato3 = infoA;
+			}
+			indice3++;
+		}
+		indice++;
+	}	
+}
+
+void insertarVertice(informacionCiberataques *infoA, string listaPaises[])
+{
+	int indice = 0;
+
+	while(indice < infoA->tamano)
+	{
+		vertice *nuevo = (vertice *)malloc(sizeof(vertice));
+		strcpy(nuevo->nombre, listaPaises[indice]);
+		nuevo->siguiente = NULL;
+		nuevo->ady = NULL;
+
+		if(vacio())
+		{
+			inicioG = nuevo;
+		}
+		else
+		{
+			vertice *aux;
+			aux = inicioG;
+			while(aux->siguiente != NULL)
+			{
+				aux = aux->siguiente;
+			}
+			aux->siguiente = nuevo;
+		}
+		indice++;
+	}	
+	insertarArista(*infoA, listaPaises);
+}
+
+void extraerListaPaises(informacionCiberataques *infoA)
+{
+	FILE *archivo = NULL; 
+
+	string listaPaises[100];
+	infoA->tamano = 0;
+	int indice = 0;
+	char linea[300];
+	char *delimitador = ";";
+	char *token = NULL;
+	
+	string ruta;
+	strcpy(ruta, ".\\InfoAtaques\\Paises");
+	strcpy(infoA->tipoArchivo, ruta);
+	strcat(infoA->tipoArchivo, ".txt");
+	
+	archivo = fopen(infoA->tipoArchivo, "a+");
+	
+	if(archivo)
+	{
+		while(fgets(linea, 300, archivo))
+		{
+   			token = strtok(linea, delimitador);
+   			while( token != NULL ) 
+			{
+      			strcpy(listaPaises[indice], token);
+      			infoA->tamano++;
+      			indice++;
+    
+      			token = strtok(NULL, delimitador);
+   			}
+		}
+	}
+	fclose(archivo);
+	insertarVertice(infoA, listaPaises);
+}
+
+void listaAdyacencia()
+{
+	vertice *vertAux;
+	arista *arisAux;
+	vertAux = inicioG;
+
+	printf("Informacion de todos los ataques: \n");
+	printf("\n");
+
+	while(vertAux != NULL)
+	{
+		arisAux = vertAux->ady;
+
+		if(arisAux == NULL)
+		{
+			vertAux = vertAux->siguiente;
+		}
+		else
+		{
+			printf("Ataques de %s:\n", vertAux->nombre);
+			printf("\n");
+
+			while(arisAux != NULL)
+			{
+				printf(" Pais de destino:       %s\n", arisAux->ady->nombre);
+				printf(" Tipo de ciberataque:   %s\n", arisAux->dato3.tipoCiberataque);
+				printf(" Ciberdelincuente:      %s\n", arisAux->dato3.nombreCiberdelincuente);
+				printf(" Cantidad de datos:     %s GB\n", arisAux->dato3.cantidadDatos);
+				printf(" Tiempo:                %s segundos\n", arisAux->dato3.tiempo);
+				printf("\n");
+				arisAux = arisAux->siguiente;
+			}
+			printf("________________________________________________________________");
+			printf("\n");
+			vertAux = vertAux->siguiente;
+			printf("\n");
+		}
+	}
+}
+
+//-----------------------  Eliminar un ataque --------------------------------//
+
+void listaEliminarLinea(informacionCiberataques *infoA, string lista[])
+{	
+	FILE *archivoAux;
+	
+	int indice = 0;
+	int indice2 = 0;
+	int indice3;
+	string listaA[300];
+	char *delimitador = ";";
+	char *token = NULL;
+	
+	string rutaAux;
+	strcpy(rutaAux, ".\\infoAtaques\\");
+	strcat(rutaAux,infoA->paisOrigen);
+	strcpy(infoA->tipoArchivo, rutaAux);
+	strcat(infoA->tipoArchivo, ".txt");
+	archivoAux = fopen(infoA->tipoArchivo, "a+");
+
+	while(indice < infoA->tamano)
+	{
+		indice2 = 0;
+		token = strtok(lista[indice], delimitador);
+		while( token != NULL ) 
+		{
+			strcpy(listaA[indice2], token);
+			indice2++;
+
+			token = strtok(NULL, delimitador);
+		}
+
+		if(strcmp(listaA[1], infoA->paisDestino) != 0)
+		{
+			indice3 = 0;
+			while(indice3 < 6)
+			{
+				if(indice3 == 5)
+				{
+					fprintf(archivoAux,"%s;\n", listaA[indice3]);	
+				}
+				else
+				{
+					fprintf(archivoAux,"%s;", listaA[indice3]);
+				}
+				indice3++;
+			}
+		}	
+		indice++;
+	}	
+	
+	printf("\n");
+	printf("La eliminacion se realizo exitosamente");
+	printf("\n");
+	printf("\n");
+	exit(-1);
+}
+
+void eliminarUnAtaque(informacionCiberataques *infoA)
+{
+	FILE *archivo = NULL; 
+	
+	string listaAtaques[100];
+	infoA->tamano = 0;
+	int indice = 0;
+	char linea[300];
+	char *delimitador1 = "\n";
+	char *delimitador2 = ";";
+	char *token = NULL;
+	
+	printf("Ingrese el pais de origen y el pais de destino del ataque que desea eliminar: \n");
+	printf("\n");
+	printf("Pais de origen: ");
+	gets(infoA->paisOrigen);
+	printf("\n");
+	printf("Pais de destino: ");
+	gets(infoA->paisDestino);
+	
+	string ruta;
+	strcpy(ruta, ".\\infoAtaques\\");
+	strcat(ruta, infoA->paisOrigen);
+	strcpy(infoA->tipoArchivo, ruta);
+	strcat(infoA->tipoArchivo, ".txt");
+	
+	archivo = fopen(infoA->tipoArchivo, "a+");
+	
+	if(archivo)
+	{
+		while(fgets(linea, 300, archivo))
+		{
+   			token = strtok(linea, delimitador1);
+   			while( token != NULL ) 
+			{
+      			strcpy(listaAtaques[indice], token);
+      			infoA->tamano++;
+      			indice++;
+    
+      			token = strtok(NULL, delimitador1);
+   			}
+		}
+	}
+	fclose(archivo);
+	remove(infoA->tipoArchivo);
+
+	listaEliminarLinea(infoA, listaAtaques);
+}
+
+//-----------------------  Eliminar un pais --------------------------------//
+
+void eliminarPais(informacionCiberataques *infoA, string lista[])
+{	
+	FILE *archivoAux;
+	
+	int indice = 0;
+
+	string rutaAux;
+	strcpy(rutaAux, ".\\infoAtaques\\Paises");
+	strcpy(infoA->tipoArchivo, rutaAux);
+	strcat(infoA->tipoArchivo, ".txt");
+	archivoAux = fopen(infoA->tipoArchivo, "a+");
+	
+	while(indice < infoA->tamano)
+	{	
+		if(strcmp(lista[indice], infoA->paisOrigen) == 0)
+		{
+			strcpy(lista[indice], "");
+		}
+		else if(indice == (infoA->tamano)-1)
+		{
+			fprintf(archivoAux,"%s", lista[indice]);
+		}
+		else
+		{
+			fprintf(archivoAux,"%s;", lista[indice]);
+		}
+		indice++;
+	}
+}
+
+void archivoAtaquesTotales(informacionCiberataques *infoA)
+{
+	FILE *archivo = NULL; 
+	
+	string listaAtaques[100];
+	infoA->tamano = 0;
+	int indice = 0;
+	char linea[300];
+	char *delimitador = ";";
+	char *token = NULL;
+	
+	string ruta;
+	strcpy(ruta, ".\\infoAtaques\\Paises");
+	strcpy(infoA->tipoArchivo, ruta);
+	strcat(infoA->tipoArchivo, ".txt");
+	
+	archivo = fopen(infoA->tipoArchivo, "a+");
+	
+	if(archivo)
+	{
+		while(fgets(linea, 300, archivo))
+		{
+   			token = strtok(linea, delimitador);
+   			while( token != NULL ) 
+			{
+      			strcpy(listaAtaques[indice], token);
+      			infoA->tamano++;
+      			indice++;
+    
+      			token = strtok(NULL, delimitador);
+   			}
+		}
+	}
+	fclose(archivo);
+	remove(infoA->tipoArchivo);
+
+	eliminarPais(infoA, listaAtaques);
+}
+
+void eliminarInfoA(informacionCiberataques *infoA)
+{
+	FILE *archivo;
+	string ruta;
+	strcpy(ruta, ".\\infoAtaques\\");
+	
+	printf("Ingrese el nombre del pais al cual desea eliminar la informacion: ");
+	gets(infoA->paisOrigen);
+	
+	strcat(ruta, infoA->paisOrigen);
+	strcpy(infoA->tipoArchivo, ruta);
+	strcat(infoA->tipoArchivo, ".txt");
+	
+	archivo = fopen(infoA->tipoArchivo, "w");
+
+	fclose(archivo);
+	
+	remove(infoA->tipoArchivo);
+
+	archivoAtaquesTotales(infoA);
+	printf("\nLa informacion ha sido eliminada exitosamente\n");
+	exit(-1);
+}
+
+//-----------------------  Modificar informacion --------------------------------//
+
+void listaAtaquesEspaciado(informacionCiberataques *infoA, string lista[])
+{	
+	FILE *archivoAux;
+	
+	int indice = 0;
+	int indice2 = 0;
+	int indice3;
+	int respuesta;
+	string listaA[300];
+	string tipoCiberataque;
+	string ciberdelincuente;
+	string cantidadDatos;
+	string tiempo;
+	char *delimitador = ";";
+	char *token = NULL;
+	
+	string rutaAux;
+	strcpy(rutaAux, ".\\infoAtaques\\");
+	strcat(rutaAux,infoA->paisOrigen);
+	strcpy(infoA->tipoArchivo, rutaAux);
+	strcat(infoA->tipoArchivo, ".txt");
+	archivoAux = fopen(infoA->tipoArchivo, "a+");
+
+	printf("\n");
+	printf("Que desea modificar?\n1.Tipo de ciberataque\n2.Nombre del ciberdelincuente\n3.Cantidad de datos\n4.Tiempo que duro el ciberataque\n");
+	scanf("%d", &respuesta);
+	getchar();
+
+	while(indice < infoA->tamano)
+	{
+		indice2 = 0;
+		token = strtok(lista[indice], delimitador);
+		while( token != NULL ) 
+		{
+			strcpy(listaA[indice2], token);
+			indice2++;
+
+			token = strtok(NULL, delimitador);
+		}
+
+		if(strcmp(listaA[1], infoA->paisDestino) == 0)
+		{
+			if(respuesta == 1)
+			{
+				printf("Ingrese el tipo de ciberataque: ");
+				gets(tipoCiberataque);
+				strcpy(listaA[2], tipoCiberataque);
+			}
+
+			else if(respuesta == 2)
+			{
+				printf("Ingrese el nombre del ciberdelincuente: ");
+				gets(ciberdelincuente);
+				strcpy(listaA[3], ciberdelincuente);
+			}
+			else if(respuesta == 3)
+			{
+				printf("Ingrese la cantidad de datos: ");
+				gets(cantidadDatos);
+				strcpy(listaA[4], cantidadDatos);
+			} 
+			else
+			{
+				printf("Ingrese el tiempo: ");
+				gets(cantidadDatos);
+				strcpy(listaA[5], tiempo);
+			}
+		}
+		
+		indice3 = 0;
+		while(indice3 < 6)
+		{
+			if(indice3 == 5)
+			{
+				fprintf(archivoAux,"%s;\n", listaA[indice3]);	
+			}
+			else
+			{
+				fprintf(archivoAux,"%s;", listaA[indice3]);
+			}
+			indice3++;
+		}
+		indice++;
+	}	
+	
+	printf("\n");
+	printf("La modificacion se realizo exitosamente");
+	printf("\n");
+	printf("\n");
+	exit(-1);
+}
+
+void modificarAtaques(informacionCiberataques *infoA)
+{
+	FILE *archivo = NULL; 
+	
+	string listaAtaques[100];
+	infoA->tamano = 0;
+	int indice = 0;
+	char linea[300];
+	char *delimitador1 = "\n";
+	char *delimitador2 = ";";
+	char *token = NULL;
+	
+	printf("Ingrese el pais de origen y el pais de destino del ataque al cual desea modificar la informacion: \n");
+	printf("\n");
+	printf("Pais de origen: ");
+	gets(infoA->paisOrigen);
+	printf("\n");
+	printf("Pais de destino: ");
+	gets(infoA->paisDestino);
+	
+	string ruta;
+	strcpy(ruta, ".\\infoAtaques\\");
+	strcat(ruta, infoA->paisOrigen);
+	strcpy(infoA->tipoArchivo, ruta);
+	strcat(infoA->tipoArchivo, ".txt");
+	
+	archivo = fopen(infoA->tipoArchivo, "a+");
+	
+	if(archivo)
+	{
+		while(fgets(linea, 300, archivo))
+		{
+   			token = strtok(linea, delimitador1);
+   			while( token != NULL ) 
+			{
+      			strcpy(listaAtaques[indice], token);
+      			infoA->tamano++;
+      			indice++;
+    
+      			token = strtok(NULL, delimitador1);
+   			}
+		}
+	}
+	fclose(archivo);
+	remove(infoA->tipoArchivo);
+
+	listaAtaquesEspaciado(infoA, listaAtaques);
+}
+
+//-----------------------  5. Registro de mensaje de seguridad de notificacion de ciberataque --------------------------------//
+
+bool existeCaracterCadena(string cadena, char caracter)
+{
+	int tamano = strlen(cadena);
+	
+    //if(strcpy(cadena, " ") == 0):
+       //return false
+    int indice = 0;
+    
+    while(indice < tamano)
+    {
+    	if(cadena[indice] == caracter)
+    	{
+    		return true;
+		}
+        indice++;
+	}
+    return false;
+}
+
+int determinarPosicionLetraCadena(string cadena, char letra, int posicion)
+{
+	int indice = 0;
+	
+    while(indice < 27)
+    {
+    	if(letra == cadena[indice])
+    	{
+    		return posicion;
+		}
+	    posicion++;
+	    indice++;
+	}
+	return false;
+}
+
+void cifradoCesar()
+{
+	string mensaje;
+	char letra;
+	int posicion;
+	int indice = 0;
+	string alfabetoValido;
+	string alfabetoCifrado;
+	string cadenaCifrada;
+    strcpy(alfabetoValido, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    strcpy(alfabetoCifrado, "DEFGHIJKLMNOPQRSTUVWXYZABC");
+    
+    printf("Ingrese un mensaje: ");
+    gets(mensaje);
+    
+    int tamano = strlen(mensaje);
+
+    while(indice < tamano)
+    {
+        letra = mensaje[indice];
+        letra = toupper(letra);
+        
+        if((existeCaracterCadena(alfabetoValido, letra)) == true)
+        {
+        	posicion = determinarPosicionLetraCadena(alfabetoValido, letra, 0);
+        	char letraCifrada[2];
+			letraCifrada[0] = alfabetoCifrado[posicion];
+        	letraCifrada[1] = '\0';
+            strcat(cadenaCifrada, letraCifrada);
+		}
+        else
+        {
+        	char letraSinCifrar[2];
+			letraSinCifrar[0] = mensaje[indice];
+			letraSinCifrar[1] = '\0';
+        	strcat(cadenaCifrada, letraSinCifrar);
+		}
+		indice++;
+	}
+	printf("\n");
+    printf("Cadena cifrada: %s", cadenaCifrada);
+}
+
+//-----------------------  Creacion del menu --------------------------------//
+
+void administrarInfoAtaques()
+{
+	informacionCiberataques ataques;
+
+	int activadorBucle2 = 1;
+	int opcionElegidaSubmenu;
+	printf(" \n");
+
+	while(activadorBucle2 == 1)
+	{
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\n");
+		printf("\t__________________________________________________\n");
+		printf("\n");
+		printf("\tAdministrar informacion de los ciberataques       \n");
+		printf("\t__________________________________________________\n");
+		printf(" \n");
+		printf(" \n");
+		printf("\t1-Registrar un ciberataque\n");
+		printf("\t2-Modificar informacion\n");
+		printf("\t3-Eliminar informacion de un ciberataque\n");
+		printf("\t4-Eliminar informacion de un pais\n");
+		printf("\t5-Consultar informacion\n");
+		printf("\t6-Regresar al menu principal\n");
+		printf("\n");
+		printf("\n");
+		printf("\tSeleccione una de las funciones disponibles: ");
+		scanf("%d", &opcionElegidaSubmenu);
+		getchar();
+		printf("\n");
+		printf("\n");
+		
+		if(opcionElegidaSubmenu>6)
+		{
+			printf("\tLa opcion elegida no es valida, elija otra opcion\n");
+				printf(" \n");
+				printf(" \n");		
+		}
+
+		switch(opcionElegidaSubmenu)
+		{
+			case 1: datosAtaque(&ataques);
+			break;
+			case 2: modificarAtaques(&ataques);
+			break;
+			break;
+			case 3: eliminarUnAtaque(&ataques);
+			break;
+			case 4: eliminarInfoA(&ataques);
+			break;
+			case 5: extraerListaPaises(&ataques);
+			        listaAdyacencia();
+			case 6: printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\n");
+					printf("\n");
+					menu();
+			break;
+		}
+	}		
+}
+
+void administrarInfoPaises()
+{
+	int activadorBucle2 = 1;
+	int opcionElegidaSubmenu;
+	printf(" \n");
+	
+	while(activadorBucle2 == 1)
+	{
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\n");
+		printf("\t____________________________________________________________\n");
+		printf("\n");
+		printf("\t          Administrar informacion de los paises             \n");
+		printf("\t____________________________________________________________\n");
+		printf(" \n");
+		printf(" \n");
+		printf("\t1-Registrar un pais\n");
+		printf("\t2-Modificar informacion\n");
+		printf("\t3-Eliminar informacion\n");
+		printf("\t4-Consultar informacion\n");
+		printf("\t5-Regresar al menu principal\n");
+		printf("\n");
+		printf("\n");
+		printf("\tSeleccione una de las funciones disponibles: ");
+		scanf( "%d", &opcionElegidaSubmenu);
+		getchar();
+		printf("\n");
+		printf("\n");
+		
+		if(opcionElegidaSubmenu>6)
+		{
+			printf("\tLa opcion elegida no es valida, elija otra opcion\n");
+				printf(" \n");
+				printf(" \n");		
+		}
+
+		switch(opcionElegidaSubmenu)
+		{
+			
+			case 1: printf("Registrar");
+			break;
+			case 2: printf("Modificar");
+			break;
+			case 3: printf("Eliminar");
+			break;
+			case 4: printf("Consultar");
+			break;
+			case 5: printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\n");
+					printf("\n");
+					menu();
+			break;
+		}
+	}		
+}
+
+void administrarInfoDelincuentes()
+{
+	ListaDelincuentes *D;
+    D = lista2();
+    informacionCiberdelincuente delincuentes;
+
+	int activadorBucle2 = 1;
+	int opcionElegidaSubmenu;
+	printf(" \n");
+
+	while(activadorBucle2 == 1)
+	{
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\n");
+		printf("\t____________________________________________________________\n");
+		printf("\t\n");
+		printf("\t       Administrar informacion de ciberdelincuentes         \n");
+		printf("\t____________________________________________________________\n");
+		printf("\t \n");
+		printf("\t \n");
+		printf("\t1-Registrar ciberdelincuente\n");
+		printf("\t2-Modificar informacion\n");
+		printf("\t3-Eliminar informacion\n");
+		printf("\t4-Consultar informacion\n");
+		printf("\t5-Regresar al menu principal\n");
+		printf("\n");
+		printf("\n");
+		printf("\tSeleccione una de las funciones disponibles: ");
+		scanf( "%d", &opcionElegidaSubmenu);
+		getchar();
+		printf("\n");
+		printf("\n");
+		
+		if(opcionElegidaSubmenu>6)
+		{
+			printf("\tLa opcion elegida no es valida, elija otra opcion\n");
+				printf(" \n");
+				printf(" \n");		
+		}
+
+		switch(opcionElegidaSubmenu)
+		{
+			case 1: insertarDatosDelincuente(D, delincuentes);
+			break;
+			case 2: modificarInfoD(&delincuentes);
+			break;
+			case 3: eliminarCiberDelincuente(&delincuentes);
+			break;
+			case 4: extraerDatosDelincuentes(&delincuentes);
+			break;
+			case 5: printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\n");
+					printf("\n");
+					menu();
+			break;
+		}
+	}		
+}
+
+void administrarInfoTipos()
+{
+	ListaAtaques *A;
+    A = lista1();
+    tipoCiberataque tipos;
+
+	int activadorBucle2 = 1;
+	int opcionElegidaSubmenu;
+	printf(" \n");
+
+	while(activadorBucle2 == 1)
+	{
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\t\t.\n");
+		printf("\n");
+		printf("\t____________________________________________\n");
+		printf("\t\n");
+		printf("\t  Administrar tipos de ciberataques      \n");
+		printf("\t_____________________________________________\n");
+		printf("\t \n");
+		printf("\t \n");
+		printf("\t1-Registrar tipo de ciberataque\n");
+		printf("\t2-Modificar informacion\n");
+		printf("\t3-Eliminar informacion\n");
+		printf("\t4-Consultar informacion\n");
+		printf("\t5-Regresar al men%c principal\n",163);
+		printf("\t\n");
+		printf("\t\n");
+		printf("\tSeleccione una de las funciones disponibles: ");
+		scanf( "%d", &opcionElegidaSubmenu);
+		getchar();
+		printf("\n");
+		printf("\n");
+		
+		if(opcionElegidaSubmenu>6)
+		{
+			printf("\tLa opcion elegida no es valida, elija otra opcion\n");
+				printf(" \n");
+				printf(" \n");		
+		}
+
+		switch(opcionElegidaSubmenu)
+		{
+			
+			case 1: insertarAtaque(A, tipos);
+			break;
+			case 2: modificarInfoV(&tipos);
+			break;
+			case 3: eliminarCiberataque(&tipos);
+			break;
+			case 4: extraerDatosAtaques(&tipos);
+			break;
+			case 5: printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\t\t.\n");
+					printf("\n");
+					printf("\n");
+			        menu();
+			break;
+		}
+	}		
+}
+
+void menu()
+{
+	int activadorBucle=1;
+	int opcionElegidaPrincipal;
+
+	while(activadorBucle==1)
+	{
+		printf("\t**************************************************\n\n");
+		printf("\t*                 CIBERSEGURIDAD                 *\n");     
+		printf("\t*                                                *\n");         
+		printf("\t*                 MENU PRINCIPAL                 *\n\n");
+		printf("\t**************************************************\n");
+		printf(" \n");
+		printf(" \n");
+		printf("\t1-Gestion de informacion sobre tipos de ciberataque\n");
+		printf("\t2-Gestion de informacion sobre ciberdelincuentes\n");
+		printf("\t3-Gestion de informacion de paises\n");
+		printf("\t4-Gestion de informacion de ciberataques\n");
+		printf("\t5-Registro de mensaje de seguridad\n");
+		printf("\t6-Simulacion de ciberataques\n");
+		printf("\t7-Obtener rutas de ciberataques\n");
+		printf("\t8-Analisis de datos\n");
+		printf("\t9-Salir\n");
+		printf(" \n");
+		printf(" \n");
+		printf("\tSeleccione una de las funciones disponibles: ");
+		scanf( "%d", &opcionElegidaPrincipal);
+		getchar();
+		printf(" \n");
+		printf(" \n");
+
+		if((opcionElegidaPrincipal>9)|| (opcionElegidaPrincipal<1))
+		{
+			printf("----La opcion elegida no es valida, elija otra opcion----\n");
+			printf(" \n");
+			printf(" \n");
+			printf(" \n");
+		}
+		switch(opcionElegidaPrincipal)
+		{	
+			case 1: administrarInfoTipos();
+			break;
+			
+			case 2: administrarInfoDelincuentes();
+			break;
+			
+			case 3: administrarInfoPaises();
+			break;
+			
+			case 4: administrarInfoAtaques();
+			break;
+
+			case 5: printf("Funcion 5: Registro de mensajes de seguridad");
+			break;
+			
+			case 6: printf("Funcion 6: Simulacion de ciberataques");
+			break;
+
+			case 7: printf("Funcion 7: Obtener rutas de ciberataques");
+			break;
+
+			case 8: printf("Funcion 8: Analisis de datos\n");
+			break;
+
+			case 9: activadorBucle=0;
+			exit(-1);
+		}
+	}
+}
+
 int main()
 {
     ListaAtaques *A;
     A = lista1();
-    informacionCiberataque ataques;
+    tipoCiberataque tipos;
 
     ListaDelincuentes *D;
     D = lista2();
     informacionCiberdelincuente delincuentes;
 
-    //insertarAtaque(A, ataques);
-    //eliminarCiberataque(&ataques);
-    //modificarInfoV(&ataques);
-	//extraerDatosAtaques(&ataques);
+	informacionCiberataques ataques;
 
-    //insertarDatosCliente(D, delincuentes);
+    //insertarAtaque(A, tipos);
+    //eliminarCiberataque(&tipos);
+    //modificarInfoV(&tipos);
+	//extraerDatosAtaques(&tipos);
+
+    //insertarDatosDelincuente(D, delincuentes);
     //eliminarCiberDelincuente(&delincuentes);
     //modificarInfoD(&delincuentes);
 	//extraerDatosDelincuentes(&delincuentes);
+
+	//datosAtaque(&ataques);
+	//extraerListaPaises(&ataques);
+	//listaAdyacencia();
+	//eliminarInfoA(&ataques);
+	//modificarAtaques(&ataques);
+	//eliminarUnAtaque(&ataques);
+
+	//cifradoCesar();
+	
+	//menu();
 
     return 0;
 }
