@@ -6,6 +6,7 @@
 
 typedef struct ListaAtaques ListaAtaques;
 typedef struct ListaDelincuentes ListaDelincuentes;
+typedef struct ListaPaises ListaPaises;
 typedef struct Nodo Nodo;
 typedef struct vertice vertice;
 typedef struct arista arista;
@@ -36,6 +37,14 @@ typedef struct
 
 typedef struct
 {
+    string codigo;
+	string nombre;
+	string cantidadHabitantes;
+	string continente;
+} informacionPais;
+
+typedef struct
+{
 	string paisOrigen;
 	string paisDestino;
 	string tipoCiberataque;
@@ -63,6 +72,7 @@ struct Nodo
 {
     tipoCiberataque dato;
     informacionCiberdelincuente dato2;
+	informacionPais dato3;
     Nodo *siguiente;
 };
 
@@ -78,6 +88,20 @@ ListaDelincuentes *lista2(void)
 	D->inicio2 = NULL;
 	return D;
 }
+
+struct ListaPaises
+{
+    Nodo *inicio2;
+};
+
+ListaPaises *lista3(void)
+{
+    ListaPaises *D;
+	D = (ListaPaises *) malloc(sizeof(ListaPaises));
+	D->inicio2 = NULL;
+	return D;
+}
+
 
 struct grafo
 {
@@ -852,6 +876,367 @@ void extraerDatosDelincuentes(informacionCiberdelincuente *infoD)
 	fclose(archivo);
 	mostrarDelincuentesTotales(infoD, listaDelincuentes);
 }
+
+
+//------------------------------------------------------------------------------//
+//------------------- 3. Registro de informacion paises ------------------------//
+//------------------------------------------------------------------------------//
+
+void creacionArchivosPais(informacionPais *infoD)
+{
+	FILE *archivo; 
+	string ruta;
+	strcpy(ruta, ".\\InfoPaises\\");
+	
+	strcat(ruta, infoD->codigo);
+	strcat(ruta, ".txt");
+	
+	archivo = fopen(ruta, "a+");
+	fprintf(archivo,"%s;%s;%s;%s;", infoD->codigo, infoD->nombre, infoD->cantidadHabitantes, infoD->continente);
+	fclose(archivo);
+}
+
+void lecturaDatosPais(informacionPais *infoD)
+{	
+	printf("Ingrese el codigo del pais: ");
+	gets(infoD->codigo);
+	
+	printf("\nIngrese el nombre del pais: ");
+	gets(infoD->nombre);
+	
+	printf("\nIngrese la cantidad de habitantes: ");
+	gets(infoD->cantidadHabitantes);
+	
+	printf("\nIngrese el continente al que pertenece: ");
+	gets(infoD->continente);
+}
+
+
+void insercionCodigosPaises(informacionPais *infoD)
+{
+	FILE *archivo; 
+	string ruta;
+	strcpy(ruta, ".\\InfoPaises\\Codigos");
+	strcat(ruta, ".txt");
+	
+	archivo = fopen(ruta, "a+");
+	fprintf(archivo,"%s;", infoD->codigo);
+	fclose(archivo);
+}
+
+
+
+void insertarDatosPais(ListaPaises *D, informacionPais infoD)
+{
+	lecturaDatosPais(&infoD);
+	Nodo *n, *aux;
+
+	if(D->inicio2 == NULL) //Valida si la lista esta vacia
+	{
+			D->inicio2 = (Nodo *) malloc(sizeof(Nodo));
+			D->inicio2->dato3 = infoD;
+			D->inicio2->siguiente = NULL;
+	}
+	else
+	{
+		n = D->inicio2;
+		while(n != NULL)
+		{
+			aux = n;
+			n = n->siguiente;
+		}
+		aux->siguiente = (Nodo *) malloc(sizeof(Nodo));
+		aux->siguiente->siguiente = NULL;
+		aux->siguiente->dato3 = infoD;
+	}		
+	creacionArchivosPais(&infoD);
+	insercionCodigosPaises(&infoD);
+	printf("\n");
+	printf("\n");
+	printf("La informacion se ha registrado exitosamente");
+	exit(-1);
+	printf("\n");
+	printf("\n");
+}
+
+
+//---------------------------------Eliminar------------------------------------//
+
+
+void remove_word(char * text, char * word)
+{
+    int sizeText = strlen(text);
+    int sizeWord = strlen(word);
+    
+    // Pointer to beginning of the word
+    char * ptr = strstr(text, word);
+    if(ptr)
+    {
+        //The position of the original text
+        int pos = (ptr - text);
+
+        // Increment the pointer to go in the end of the word to remove
+        ptr = ptr + sizeWord;                
+        
+        // Search in the phrase and copy char per char
+        int i;
+        for(i = 0; i < strlen(ptr); i++)
+        {
+            text[pos + i] = ptr[i]; 
+        }
+        // Set the "new end" of the text               
+        text[pos + i] = 0x00;      
+    }   
+}
+
+
+void eliminarCodigoPais(string codigoPais){
+	
+	string ruta;
+	strcpy(ruta, ".\\InfoPaises\\Codigos.txt");
+
+    string text;
+    string wordToRemove;
+    
+    // Word to remove
+    strcpy(wordToRemove, codigoPais); 
+    strcat(wordToRemove, ";"); 
+    
+    // Open for both reading and writing in binary mode - if exists overwritten
+    FILE *fp = fopen(ruta, "a+");
+    if (fp == NULL) {
+        printf("Error opening the file %s", ruta);
+        return;
+    }
+    
+    // Read the file
+    fread(text, sizeof(char), 100, fp);
+    fclose(fp);
+	
+    // Call the function to remove the word
+    remove_word(text, wordToRemove);
+
+    // Write the new text
+    fp = fopen(ruta, "w+");	
+    fprintf(fp, text);
+    fclose(fp);
+	
+}
+
+
+void eliminarInfoPais()
+{
+	FILE *archivo;
+	string ruta;
+	strcpy(ruta, ".\\InfoPaises\\");
+	string codigoPais;
+	
+	printf("Ingrese el codigo del pais el cual desea eliminar: ");
+	gets(codigoPais);
+	
+	strcat(ruta, codigoPais);
+	strcat(ruta, ".txt");
+	
+	remove(ruta);
+	
+	eliminarCodigoPais(codigoPais);
+
+	//datosPaisTotales(infoD);
+	printf("\nLa informacion del pais ha sido eliminada\n");
+	exit(-1);
+}
+
+
+//----------------------------- Consultar Datos -----------------------------------//
+
+
+void mostrarPaisesTotales( string lista[], int listSize )
+{
+	FILE *archivo = NULL; 
+	
+	int indice2 = 0;
+	char linea[300];
+	char *delimitador = ";";
+	char *token = NULL;
+	string ruta;
+	
+	while( indice2 < listSize )
+	{
+	
+		int indice = 0;
+		strcpy(ruta, ".\\InfoPaises\\");
+		strcat(ruta, lista[indice2]);
+		strcat(ruta, ".txt");
+
+		archivo = fopen(ruta, "a+");
+
+		printf("\n\n ");
+		if( archivo != NULL )
+		{
+			while(fgets(linea, 300, archivo))
+			{
+				token = strtok(linea, delimitador);
+				while( token != NULL ) 
+				{
+					if(indice == 0)
+					{
+						printf("- Codigo: %s\n", token);
+					}
+					else if(indice == 1)
+					{
+						printf(" - Nombre: %s\n", token);
+					}
+					else if(indice == 2)
+					{
+						printf(" - Cantidad habitantes: %s\n", token);
+					}	
+					else if(indice == 3)
+					{
+						printf(" - Continente: %s\n", token);
+					}
+
+					indice++;
+					token = strtok(NULL, delimitador);
+				}
+			}
+		indice2++;
+		}	
+	}
+	fclose(archivo);
+	printf("\n");
+	printf("\n");
+}
+
+
+void extraerDatosPais()
+{
+	FILE *archivo = NULL; 
+
+	int indice = 0;
+	char linea[300];
+	char *delimitador = ";";
+	char *token = NULL;
+	string listaPaises[100];
+	
+	string ruta;
+	strcpy(ruta, ".\\InfoPaises\\Codigos.txt");
+	
+	archivo = fopen(ruta, "a+");
+	
+	if(archivo)
+	{
+		while(fgets(linea, 300, archivo))
+		{
+   			token = strtok(linea, delimitador);
+   			while( token != NULL ) 
+			{
+      			strcpy( listaPaises[indice], token );
+      			indice++;
+      			token = strtok( NULL, delimitador );
+   			}
+   			
+		}
+		mostrarPaisesTotales( listaPaises, indice );
+	}
+	fclose(archivo);
+	
+}
+
+
+//--------------------------------- Modificar ------------------------------------//
+
+
+void extraerListaInfoPaises(informacionPais *infoD, string lista[])
+{	
+	FILE *archivoAux;
+	
+	int indice = 0;
+	int respuesta;
+	string nombre;
+	string pais;
+	string ciberataques;
+	string espacio = " ";
+	
+	printf("Que desea modificar?\n1.Nombre del pais\n2.Cantidad de habitantes\n3.Continenete\n");
+	scanf("%d", &respuesta);
+	getchar();
+	
+	if(respuesta == 1)
+	{
+		printf("Ingrese el nuevo nombre del pais: ");
+		gets(nombre);
+		strcpy(lista[1], nombre);
+	}
+	
+	else if(respuesta == 2)
+	{
+		printf("Ingrese la nueva cantidad de habitantes: ");
+		gets(pais);
+		strcpy(lista[2], pais);
+	}
+	else
+	{
+		printf("Ingrese el nuevo continente: ");
+		gets(ciberataques);
+		strcpy(lista[3], ciberataques);
+    } 
+	
+	string rutaAux;
+	strcpy(rutaAux, ".\\InfoPaises\\");
+	strcat(rutaAux,infoD->codigo);
+	strcat(rutaAux, ".txt");
+	archivoAux = fopen(rutaAux, "a+");
+	
+	fprintf( archivoAux,"%s;%s;%s;%s;", lista[0], lista[1], lista[2], lista[3] );
+	fclose( archivoAux );
+
+	printf("\n");
+	printf("La modificacion se realizo exitosamente");
+	printf("\n");
+	printf("\n");
+	exit(-1);
+}
+
+void modificarInfoPais(informacionPais *infoD)
+{
+	FILE *archivo = NULL; 
+	
+	string listaPaises[100];
+	int indice = 0;
+	char linea[300];
+	char *delimitador = ";";
+	char *token = NULL;
+	
+	printf("Ingrese el codigo del pais que desea modificar: ");
+	gets(infoD->codigo);
+	
+	string ruta;
+	strcpy(ruta, ".\\InfoPaises\\");
+	strcat(ruta, infoD->codigo);
+	strcat(ruta, ".txt");
+	
+	archivo = fopen(ruta, "a+");
+	
+	if(archivo)
+	{
+		while(fgets(linea, 300, archivo))
+		{
+   			token = strtok(linea, delimitador);
+   			while( token != NULL ) 
+			{
+      			strcpy(listaPaises[indice], token);
+      			indice++;
+    
+      			token = strtok(NULL, delimitador);
+   			}
+		}
+	}
+	fclose(archivo);
+	remove(ruta);
+
+	extraerListaInfoPaises(infoD, listaPaises);
+}
+
 
 //-----------------------  4. Gestion de informacion de ciberataques --------------------------------//
 
@@ -1679,6 +2064,11 @@ void administrarInfoAtaques()
 
 void administrarInfoPaises()
 {
+	
+	ListaPaises *P;
+    P = lista3();
+    informacionPais paises;
+	
 	int activadorBucle2 = 1;
 	int opcionElegidaSubmenu;
 	printf(" \n");
@@ -1719,14 +2109,22 @@ void administrarInfoPaises()
 		switch(opcionElegidaSubmenu)
 		{
 			
-			case 1: printf("Registrar");
-			break;
-			case 2: printf("Modificar");
-			break;
-			case 3: printf("Eliminar");
-			break;
-			case 4: printf("Consultar");
-			break;
+			case 1: 
+				//printf("Registrar");
+				insertarDatosPais(P, paises);
+				break;
+			case 2: 
+				//printf("Modificar");
+				modificarInfoPais(&paises);
+				break;
+			case 3: 
+				//printf("Eliminar");
+				eliminarInfoPais();
+				break;
+			case 4: 
+				//printf("Consultar");
+				extraerDatosPais(&paises);
+				break;
 			case 5: printf("\t\t.\n");
 					printf("\t\t.\n");
 					printf("\t\t.\n");
@@ -1736,6 +2134,12 @@ void administrarInfoPaises()
 					menu();
 			break;
 		}
+		
+		//insertarDatosPais(P, paises);
+		//eliminarInfoPais();
+		//extraerDatosPais(&paises);
+		//modificarInfoPais(&paises);
+			
 	}		
 }
 
@@ -1951,6 +2355,10 @@ int main()
     informacionCiberdelincuente delincuentes;
 
 	informacionCiberataques ataques;
+	
+	ListaPaises *P;
+    P = lista3();
+    informacionPais paises;
 
     //insertarAtaque(A, tipos);
     //eliminarCiberataque(&tipos);
