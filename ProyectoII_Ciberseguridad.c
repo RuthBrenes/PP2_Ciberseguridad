@@ -898,16 +898,16 @@ void creacionArchivosPais(informacionPais *infoD)
 
 void lecturaDatosPais(informacionPais *infoD)
 {	
-	printf("Ingrese el codigo del pais: ");
+	printf("\tIngrese el codigo del pais: ");
 	gets(infoD->codigo);
 	
-	printf("\nIngrese el nombre del pais: ");
+	printf("\n\tIngrese el nombre del pais: ");
 	gets(infoD->nombre);
 	
-	printf("\nIngrese la cantidad de habitantes: ");
+	printf("\n\tIngrese la cantidad de habitantes: ");
 	gets(infoD->cantidadHabitantes);
 	
-	printf("\nIngrese el continente al que pertenece: ");
+	printf("\n\tIngrese el continente al que pertenece: ");
 	gets(infoD->continente);
 }
 
@@ -953,8 +953,7 @@ void insertarDatosPais(ListaPaises *D, informacionPais infoD)
 	insercionCodigosPaises(&infoD);
 	printf("\n");
 	printf("\n");
-	printf("La informacion se ha registrado exitosamente");
-	exit(-1);
+	printf("\tLa informacion se ha registrado exitosamente");
 	printf("\n");
 	printf("\n");
 }
@@ -1005,7 +1004,7 @@ void eliminarCodigoPais(string codigoPais){
     // Open for both reading and writing in binary mode - if exists overwritten
     FILE *fp = fopen(ruta, "a+");
     if (fp == NULL) {
-        printf("Error opening the file %s", ruta);
+        printf("\tError opening the file %s", ruta);
         return;
     }
     
@@ -1031,7 +1030,7 @@ void eliminarInfoPais()
 	strcpy(ruta, ".\\InfoPaises\\");
 	string codigoPais;
 	
-	printf("Ingrese el codigo del pais el cual desea eliminar: ");
+	printf("\tIngrese el codigo del pais el cual desea eliminar: ");
 	gets(codigoPais);
 	
 	strcat(ruta, codigoPais);
@@ -1042,8 +1041,7 @@ void eliminarInfoPais()
 	eliminarCodigoPais(codigoPais);
 
 	//datosPaisTotales(infoD);
-	printf("\nLa informacion del pais ha sido eliminada\n");
-	exit(-1);
+	printf("\n\tLa informacion del pais ha sido eliminada\n");
 }
 
 
@@ -1080,19 +1078,19 @@ void mostrarPaisesTotales( string lista[], int listSize )
 				{
 					if(indice == 0)
 					{
-						printf("- Codigo: %s\n", token);
+						printf("\t- Codigo: %s\n", token);
 					}
 					else if(indice == 1)
 					{
-						printf(" - Nombre: %s\n", token);
+						printf("\t - Nombre: %s\n", token);
 					}
 					else if(indice == 2)
 					{
-						printf(" - Cantidad habitantes: %s\n", token);
+						printf("\t - Cantidad habitantes: %s\n", token);
 					}	
 					else if(indice == 3)
 					{
-						printf(" - Continente: %s\n", token);
+						printf("\t - Continente: %s\n", token);
 					}
 
 					indice++;
@@ -1157,26 +1155,26 @@ void extraerListaInfoPaises(informacionPais *infoD, string lista[])
 	string ciberataques;
 	string espacio = " ";
 	
-	printf("Que desea modificar?\n1.Nombre del pais\n2.Cantidad de habitantes\n3.Continenete\n");
+	printf("\tQue desea modificar?\n\t1.Nombre del pais\n\t2.Cantidad de habitantes\n\t3.Continenete\n\t");
 	scanf("%d", &respuesta);
 	getchar();
 	
 	if(respuesta == 1)
 	{
-		printf("Ingrese el nuevo nombre del pais: ");
+		printf("\tIngrese el nuevo nombre del pais: ");
 		gets(nombre);
 		strcpy(lista[1], nombre);
 	}
 	
 	else if(respuesta == 2)
 	{
-		printf("Ingrese la nueva cantidad de habitantes: ");
+		printf("\tIngrese la nueva cantidad de habitantes: ");
 		gets(pais);
 		strcpy(lista[2], pais);
 	}
 	else
 	{
-		printf("Ingrese el nuevo continente: ");
+		printf("\tIngrese el nuevo continente: ");
 		gets(ciberataques);
 		strcpy(lista[3], ciberataques);
     } 
@@ -1191,10 +1189,9 @@ void extraerListaInfoPaises(informacionPais *infoD, string lista[])
 	fclose( archivoAux );
 
 	printf("\n");
-	printf("La modificacion se realizo exitosamente");
+	printf("\tLa modificacion se realizo exitosamente");
 	printf("\n");
 	printf("\n");
-	exit(-1);
 }
 
 void modificarInfoPais(informacionPais *infoD)
@@ -1207,7 +1204,7 @@ void modificarInfoPais(informacionPais *infoD)
 	char *delimitador = ";";
 	char *token = NULL;
 	
-	printf("Ingrese el codigo del pais que desea modificar: ");
+	printf("\tIngrese el codigo del pais que desea modificar: ");
 	gets(infoD->codigo);
 	
 	string ruta;
@@ -2379,7 +2376,7 @@ int main()
 
 	//cifradoCesar();
 	
-	//menu();
+	menu();
 
     return 0;
 }
