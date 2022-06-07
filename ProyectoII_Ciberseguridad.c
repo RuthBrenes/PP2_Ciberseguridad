@@ -11,6 +11,7 @@ typedef struct Nodo Nodo;
 typedef struct vertice vertice;
 typedef struct arista arista;
 typedef struct grafo grafo;
+typedef struct nodoArbol nodoArbol;
 void menu();
 
 typedef char string[300];
@@ -882,6 +883,129 @@ void extraerDatosDelincuentes(informacionCiberdelincuente *infoD)
 //------------------- 3. Registro de informacion paises ------------------------//
 //------------------------------------------------------------------------------//
 
+
+
+//--------------------------------------- ARBOL BINARIO -------------------------------------------------//
+
+
+struct nodoArbol
+{
+	// int info;
+	int valor;
+	informacionPais infoPais;
+	struct nodoArbol *izq;
+	struct nodoArbol *der;
+	struct nodoArbol *anterior;
+};
+
+// Definici�n de ra�z de �rbol
+nodoArbol *raiz = NULL;
+
+void insertarNodoEnArbol(informacionPais newInfoPais)
+{
+	nodoArbol *nuevo;
+	nuevo = malloc(sizeof(struct nodoArbol));
+	nuevo->infoPais = newInfoPais;
+	nuevo->izq = NULL;
+	nuevo->der = NULL;
+	
+	int newCodPais;
+	sscanf(newInfoPais.codigo, "%d", &newCodPais);
+	
+	if (raiz == NULL)
+		raiz = nuevo;
+	else
+	{
+		nodoArbol *aux;
+		nuevo->anterior = NULL;
+		aux = raiz;
+		int auxCod;
+		while (aux != NULL)
+		{
+			sscanf(aux->infoPais.codigo, "%d", &auxCod);
+			nuevo->anterior = aux;
+			if (newCodPais < auxCod)
+				aux = aux->izq;
+			else
+				aux = aux->der;
+		}
+		
+		int nuevoCod;
+		sscanf(nuevo->anterior->infoPais.codigo, "%d", &nuevoCod);
+		
+		if (newCodPais < nuevoCod)
+			nuevo->anterior->izq = nuevo;
+		else
+			nuevo->anterior->der = nuevo;
+	}
+}
+
+void imprimirEnOrden(nodoArbol *recorrer)
+{
+	if (recorrer != NULL)
+	{
+		imprimirEnOrden(recorrer->izq);
+		printf("\tCodigo[%s] Nombre[%s] Cantidad Habitantes[%s] Continente[%s]\n", 
+		recorrer->infoPais.codigo, recorrer->infoPais.nombre, recorrer->infoPais.cantidadHabitantes, recorrer->infoPais.continente);
+		imprimirEnOrden(recorrer->der);
+	}
+}
+
+
+int recorrerHijoDerecho(nodoArbol *recorrer)
+{
+	informacionPais menor;
+	recorrer = recorrer->der;
+	
+	int codPais;
+	sscanf(recorrer->infoPais.codigo, "%d", &codPais);
+	
+	int menorCodPais;
+	sscanf(menor.codigo, "%d", &menorCodPais);
+
+	if (recorrer != NULL)
+	{
+		if (codPais < menorCodPais)
+		{
+			menor = recorrer->infoPais;
+			printf("%d", menor);
+			sscanf(menor.codigo, "%d", &codPais);
+			return codPais;
+		}
+	}
+}
+
+#define COUNT 10
+// Function to print binary tree in 2D
+// It does reverse inorder traversal
+void print2DUtil(nodoArbol *root, int space)
+{
+    // Base case
+    if (root == NULL)
+        return;
+ 
+    // Increase distance between levels
+    space += COUNT;
+ 
+    // Process right child first
+    print2DUtil(root->der, space);
+ 
+    // Print current node after space
+    // count
+    printf("\n\t");
+    int i;
+    for (i = COUNT; i < space; i++)
+        printf(" ");
+    printf("%s\n", root->infoPais.codigo);
+ 
+    // Process left child
+    print2DUtil(root->izq, space);
+}
+
+
+//------------------------------------------- Insertar Informacion ------------------------------------------//
+
+
 void creacionArchivosPais(informacionPais *infoD)
 {
 	FILE *archivo; 
@@ -1068,43 +1192,54 @@ void mostrarPaisesTotales( string lista[], int listSize )
 
 		archivo = fopen(ruta, "a+");
 
-		printf("\n\n ");
 		if( archivo != NULL )
 		{
 			while(fgets(linea, 300, archivo))
 			{
 				token = strtok(linea, delimitador);
+				informacionPais infoPais;
+				
 				while( token != NULL ) 
 				{
 					if(indice == 0)
 					{
-						printf("\t- Codigo: %s\n", token);
+						strcpy(infoPais.codigo, token);
 					}
 					else if(indice == 1)
 					{
-						printf("\t - Nombre: %s\n", token);
+						strcpy(infoPais.nombre, token);
 					}
 					else if(indice == 2)
 					{
-						printf("\t - Cantidad habitantes: %s\n", token);
+						strcpy(infoPais.cantidadHabitantes, token);
 					}	
 					else if(indice == 3)
 					{
-						printf("\t - Continente: %s\n", token);
+						strcpy(infoPais.continente, token);
 					}
 
 					indice++;
 					token = strtok(NULL, delimitador);
 				}
+				
+				insertarNodoEnArbol(infoPais);
+				
 			}
 		indice2++;
 		}	
 	}
 	fclose(archivo);
-	printf("\n");
-	printf("\n");
+	
+	printf("\tRecorrido en orden: \n\n");
+	imprimirEnOrden(raiz);
+	
+	printf("\n\n\n\tVisualizacion del arbol en 2D: \n\n\n");
+	print2DUtil(raiz, 0);
+	
+	// Se libera la raiz, para que no haya informacion duplicada, cada vez que se realice la consulta de la informacion
+	raiz = NULL;
+	
 }
-
 
 void extraerDatosPais()
 {
@@ -1139,6 +1274,81 @@ void extraerDatosPais()
 	fclose(archivo);
 	
 }
+
+
+void consultarInfoPaisPorCod( string lista[], int listSize )
+{
+	FILE *archivo = NULL; 
+	
+	int indice2 = 0;
+	char linea[300];
+	char *delimitador = ";";
+	char *token = NULL;
+	string ruta;
+	
+	while( indice2 < listSize )
+	{
+	
+		int indice = 0;
+		strcpy(ruta, ".\\InfoPaises\\");
+		strcat(ruta, lista[indice2]);
+		strcat(ruta, ".txt");
+
+		archivo = fopen(ruta, "a+");
+
+		if( archivo != NULL )
+		{
+			while(fgets(linea, 300, archivo))
+			{
+				token = strtok(linea, delimitador);
+				informacionPais infoPais;
+				
+				while( token != NULL ) 
+				{
+					if(indice == 0)
+					{
+						printf("\t- Codigo: %s\n", token);
+					}
+					else if(indice == 1)
+					{
+						printf("\t- Nombre: %s\n", token);
+					}
+					else if(indice == 2)
+					{
+						printf("\t- Cantidad Habitantes: %s\n", token);
+					}	
+					else if(indice == 3)
+					{
+						printf("\t- Continente: %s\n", token);
+					}
+
+					indice++;
+					token = strtok(NULL, delimitador);
+				}
+				
+			}
+		indice2++;
+		}	
+	}
+	fclose(archivo);
+	
+}
+
+
+void consultarInfoPaisPorCodigo(){
+	
+	string respuesta;
+	string listaPaises[100];
+	
+	printf("\tIngrese el codigo del pais del que desea consultar la informacion: \n\t");
+	scanf("%s", respuesta);
+	
+	printf("\n\n");
+	
+	strcpy( listaPaises[0], respuesta );
+	consultarInfoPaisPorCod(listaPaises, 1);
+}
+
 
 
 //--------------------------------- Modificar ------------------------------------//
@@ -1233,7 +1443,6 @@ void modificarInfoPais(informacionPais *infoD)
 
 	extraerListaInfoPaises(infoD, listaPaises);
 }
-
 
 //-----------------------  4. Gestion de informacion de ciberataques --------------------------------//
 
@@ -2084,10 +2293,11 @@ void administrarInfoPaises()
 		printf(" \n");
 		printf(" \n");
 		printf("\t1-Registrar un pais\n");
-		printf("\t2-Modificar informacion\n");
-		printf("\t3-Eliminar informacion\n");
-		printf("\t4-Consultar informacion\n");
-		printf("\t5-Regresar al menu principal\n");
+		printf("\t2-Modificar informacion de un pais\n");
+		printf("\t3-Eliminar informacion de un pais\n");
+		printf("\t4-Consultar informacion de un pais \n");
+		printf("\t5-Ver Recorrido En Orden Y Visualizacion del arbol en 2D\n");
+		printf("\t6-Regresar al menu principal\n");
 		printf("\n");
 		printf("\n");
 		printf("\tSeleccione una de las funciones disponibles: ");
@@ -2107,29 +2317,29 @@ void administrarInfoPaises()
 		{
 			
 			case 1: 
-				//printf("Registrar");
 				insertarDatosPais(P, paises);
 				break;
 			case 2: 
-				//printf("Modificar");
 				modificarInfoPais(&paises);
 				break;
 			case 3: 
-				//printf("Eliminar");
 				eliminarInfoPais();
 				break;
 			case 4: 
-				//printf("Consultar");
+				consultarInfoPaisPorCodigo();
+				break;
+			case 5: 
 				extraerDatosPais(&paises);
 				break;
-			case 5: printf("\t\t.\n");
-					printf("\t\t.\n");
-					printf("\t\t.\n");
-					printf("\t\t.\n");
-					printf("\n");
-					printf("\n");
-					menu();
-			break;
+			case 6: 
+				printf("\t\t.\n");
+				printf("\t\t.\n");
+				printf("\t\t.\n");
+				printf("\t\t.\n");
+				printf("\n");
+				printf("\n");
+				menu();
+				break;
 		}
 		
 		//insertarDatosPais(P, paises);
