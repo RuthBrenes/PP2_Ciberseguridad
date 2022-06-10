@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 
 typedef struct ListaAtaques ListaAtaques;
 typedef struct ListaDelincuentes ListaDelincuentes;
@@ -2199,6 +2200,329 @@ void cifradoCesar()
     printf("Cadena cifrada: %s", cadenaCifrada);
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------------//
+//-----------------------  6. Registro de mensaje de seguridad de notificacion de ciberataque --------------------------------//
+//----------------------------------------------------------------------------------------------------------------------------//
+
+
+int random_number(int min_num, int max_num)
+    {
+        int result = 0, low_num = 0, hi_num = 0;
+
+        if (min_num < max_num)
+        {
+            low_num = min_num;
+            hi_num = max_num + 1; // include max_num in output
+        } else {
+            low_num = max_num + 1; // include max_num in output
+            hi_num = min_num;
+        }
+
+        //srand(time(NULL));
+        result = (rand() % (hi_num - low_num)) + low_num;
+        return result;
+    }
+
+
+void registrarCiberAtaque(string paisOrigen, string paisDestino, string tipoCiberataque, string nombreCiberdelincuente, string tiempo, string cantidadDatos)
+{	
+	
+	informacionCiberataques infoA;
+	strcpy(infoA.paisOrigen, paisOrigen);
+	strcpy(infoA.paisDestino, paisDestino);
+	strcpy(infoA.tipoCiberataque, tipoCiberataque);
+	strcpy(infoA.nombreCiberdelincuente, nombreCiberdelincuente);
+	strcpy(infoA.cantidadDatos, cantidadDatos);
+	strcpy(infoA.tiempo, tiempo);
+
+	archivosAtaques(&infoA);
+	insercionPaises(&infoA);
+	
+	printf("\n");
+	printf("Se ha registrado el ciberataque correctamente\n\n\n\n");
+}
+
+
+void simulacionDeCiberataque(){
+	
+	printf("\t------- SIMULACION DE CIBERATAQUE ------- \n\n");
+	
+	
+	// 0. Cantidad de ciber ataques aleatorios
+	
+	/* Intializes random number generator */
+	time_t t;
+   	srand((unsigned) time(&t));
+	
+	int cantidadCiberataques = random_number(5, 10);
+	printf("\tCantidad de ciberataques registrados: %i\n\n", cantidadCiberataques);
+	
+	int mainIndex;
+	
+	for( mainIndex = 0; mainIndex < cantidadCiberataques; mainIndex++ ) {
+		
+		//printf("\tInformacion del Ciberataque %i: \n", mainIndex+1);
+	
+		//----------------------------------------------------------------//
+		
+		//Extraccion de los codigos de paises del archivo de codigos
+		
+		FILE *archivo = NULL; 
+	
+		int cantidadPaises = 0; //Cantidad de paises
+		char linea[300];
+		char *delimitador = ";";
+		char *token = NULL;
+		string listaPaises[100];
+		
+		string ruta;
+		strcpy(ruta, ".\\InfoPaises\\Codigos.txt");
+		
+		archivo = fopen(ruta, "a+");
+		
+		if(archivo)
+		{
+			while(fgets(linea, 300, archivo))
+			{
+	   			token = strtok(linea, delimitador);
+	   			while( token != NULL ) 
+				{
+	      			strcpy( listaPaises[cantidadPaises], token );
+	      			cantidadPaises++;
+	      			token = strtok( NULL, delimitador );
+	   			}
+	   			
+			}
+		}
+		fclose(archivo);
+		
+		
+		// 1. Generacion del codigo del pais de origen del ciberataque
+		int randomNumber = rand() % cantidadPaises;      // Returns a pseudo-random integer between 0 and RAND_MAX.
+		string codPaisOrigenAtaque;
+		strcpy(codPaisOrigenAtaque, listaPaises[randomNumber]);
+		
+		string nombrePaisOrigenAtaque;
+		strcpy(ruta, ".\\InfoPaises\\");
+		strcat(ruta, codPaisOrigenAtaque);
+		strcat(ruta, ".txt");
+		
+		archivo = fopen(ruta, "a+");
+		int index = 0;
+		
+		if(archivo)
+		{
+			while(fgets(linea, 300, archivo))
+			{
+	   			token = strtok(linea, delimitador);
+	   			while( token != NULL ) 
+				{
+					if(index == 1){
+						strcpy( nombrePaisOrigenAtaque, token );
+					}
+					token = strtok( NULL, delimitador );
+					index++;
+	
+	   			}
+	   			
+			}
+		}
+		fclose(archivo);
+		//printf("\tEl pais de origen del ciberataque es: %s\n", nombrePaisOrigenAtaque);
+		
+		// 2. Generacion del codigo del pais destino del ciberataque
+		randomNumber = rand() % cantidadPaises ; 
+		string codPaisDestinoAtaque;
+		strcpy(codPaisDestinoAtaque, listaPaises[randomNumber]);
+		
+		string nombrePaisDestinoAtaque;
+		strcpy(ruta, ".\\InfoPaises\\");
+		strcat(ruta, codPaisDestinoAtaque);
+		strcat(ruta, ".txt");
+		
+		archivo = fopen(ruta, "a+");
+		index = 0;
+		
+		if(archivo)
+		{
+			while(fgets(linea, 300, archivo))
+			{
+	   			token = strtok(linea, delimitador);
+	   			while( token != NULL ) 
+				{
+					if(index == 1){
+						strcpy( nombrePaisDestinoAtaque, token );
+					}
+					token = strtok( NULL, delimitador );
+					index++;
+	
+	   			}
+	   			
+			}
+		}
+		fclose(archivo);
+		
+		//printf("\tEl pais de destino del ciberataque es: %s\n", nombrePaisDestinoAtaque);
+		
+		
+		// 3. Generacion del nombre del tipo del ciberataque
+		
+	
+		int cantidadTiposCiberataques = 0; 
+		string listaCiberataques[100];
+		strcpy(ruta, ".\\TipoAtaques\\Codigos.txt");
+		
+		archivo = fopen(ruta, "a+");
+		
+		if(archivo)
+		{
+			while(fgets(linea, 300, archivo))
+			{
+	   			token = strtok(linea, delimitador);
+	   			while( token != NULL ) 
+				{
+	      			strcpy( listaCiberataques[cantidadTiposCiberataques], token );
+	      			cantidadTiposCiberataques++;
+	      			token = strtok( NULL, delimitador );
+	   			}
+	   			
+			}
+		}
+		fclose(archivo);
+		
+		randomNumber = rand() % cantidadTiposCiberataques; 
+		string codTipoCiberAtaque;
+		strcpy(codTipoCiberAtaque, listaCiberataques[randomNumber]);
+		
+		//---------------------------------------------------------------//
+		
+		
+		strcpy(ruta, ".\\TipoAtaques\\");
+		strcat(ruta, codTipoCiberAtaque);
+		strcat(ruta, ".txt");
+		
+		archivo = fopen(ruta, "a+");
+		index = 0;
+		string nombreTipoCiberAtaque;
+		
+		if(archivo)
+		{
+			while(fgets(linea, 300, archivo))
+			{
+	   			token = strtok(linea, delimitador);
+	   			while( token != NULL ) 
+				{
+					if(index == 1){
+						strcpy( nombreTipoCiberAtaque, token );
+					}
+					token = strtok( NULL, delimitador );
+					index++;
+	
+	   			}
+	   			
+			}
+		}
+		fclose(archivo);
+		
+		
+		//printf("\tEl tipo de ciberataque es: %s\n", nombreTipoCiberAtaque);
+		
+		
+		// 4. Generacion del nombre del ciberdelincuente
+		
+		int cantidadCiberdelincuentes = 0; 
+		string listaCiberdelincuentes[100];
+		strcpy(ruta, ".\\InfoDelincuentes\\Codigos.txt");
+		
+		archivo = fopen(ruta, "a+");
+		
+		if(archivo)
+		{
+			while(fgets(linea, 300, archivo))
+			{
+	   			token = strtok(linea, delimitador);
+	   			while( token != NULL ) 
+				{
+	      			strcpy( listaCiberdelincuentes[cantidadCiberdelincuentes], token );
+	      			cantidadCiberdelincuentes++;
+	      			token = strtok( NULL, delimitador );
+	   			}
+	   			
+			}
+		}
+		fclose(archivo);
+		
+		randomNumber = rand() % cantidadCiberdelincuentes;  
+		string codCiberDelincuente;
+		strcpy(codCiberDelincuente, listaCiberdelincuentes[randomNumber]);
+		
+		//---------------------------------------------------------------//
+		
+		
+		strcpy(ruta, ".\\InfoDelincuentes\\");
+		strcat(ruta, codCiberDelincuente);
+		strcat(ruta, ".txt");
+		
+		archivo = fopen(ruta, "a+");
+		index = 0;
+		string nombreCiberDelincuente;
+		
+		if(archivo)
+		{
+			while(fgets(linea, 300, archivo))
+			{
+	   			token = strtok(linea, delimitador);
+	   			while( token != NULL ) 
+				{
+					if(index == 1){
+						strcpy( nombreCiberDelincuente, token );
+					}
+					token = strtok( NULL, delimitador );
+					index++;
+	
+	   			}
+	   			
+			}
+		}
+		fclose(archivo);
+		
+		
+		//printf("\tEl ciberdelincuente es: %s\n", nombreCiberDelincuente);
+		
+		// 5. Cantidad de datos afectados por el ciberataque
+		
+		//int datosAfectados = rand() % 1000;
+		string datosAfectados; 
+		itoa( rand() % 1000, datosAfectados, 10 );
+		//printf("\tCantidad de datos afectados: %s GB\n", datosAfectados);
+		
+		// 6. Cantidad de tiempo que dur� el ciberataque
+	
+		//int tiempoCiberataque = rand() % 1000;
+		string tiempoCiberataque;
+		itoa( rand() % 1000, tiempoCiberataque, 10 );
+		//printf("\tCantidad de tiempo que duro el ciberataque: %s segundos\n\n", tiempoCiberataque);
+		
+		// 7. Registro del ciberataque en el grafo correspondiente
+		registrarCiberAtaque(nombrePaisOrigenAtaque, nombrePaisDestinoAtaque, nombreTipoCiberAtaque, nombreCiberDelincuente, datosAfectados, tiempoCiberataque);
+		
+		//--------------------------------------------------------------------//
+		
+		/*printf("\tInformacion del Ciberataque %i: \n", mainIndex+1);
+		printf("\tEl pais de origen del ciberataque es: %s\n", nombrePaisOrigenAtaque);
+		printf("\tEl pais de destino del ciberataque es: %s\n", nombrePaisDestinoAtaque);
+		printf("\tEl tipo de ciberataque es: %s\n", nombreTipoCiberAtaque);
+		printf("\tEl ciberdelincuente es: %s\n", nombreCiberDelincuente);
+		printf("\tCantidad de datos afectados: %s GB\n", datosAfectados);
+		printf("\tCantidad de tiempo que duro el ciberataque: %s segundos\n\n", tiempoCiberataque);*/
+		
+		
+	}
+
+}
+
+
 //-----------------------  Creacion del menu --------------------------------//
 
 void administrarInfoAtaques()
@@ -2485,6 +2809,7 @@ void menu()
 {
 	int activadorBucle=1;
 	int opcionElegidaPrincipal;
+	informacionCiberataques ataques;
 
 	while(activadorBucle==1)
 	{
@@ -2536,8 +2861,11 @@ void menu()
 			case 5: printf("Funcion 5: Registro de mensajes de seguridad");
 			break;
 			
-			case 6: printf("Funcion 6: Simulacion de ciberataques");
-			break;
+			case 6: 
+				simulacionDeCiberataque();
+				extraerListaPaises(&ataques);
+			    listaAdyacencia();
+				break;
 
 			case 7: printf("Funcion 7: Obtener rutas de ciberataques");
 			break;
@@ -2590,3 +2918,4 @@ int main()
 
     return 0;
 }
+
