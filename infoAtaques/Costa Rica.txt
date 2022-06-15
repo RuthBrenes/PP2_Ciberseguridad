@@ -1,2 +1,7 @@
-Costa Rica;Rusia;Phishing;Conti;20;100;
-Costa Rica;Argentina;Troyanos;Fancy Bear;35;80;
+Costa Rica;Rusia;Phishing;Conti;20;100;0;
+Costa Rica;Argentina;Troyanos;Fancy Bear;35;80;0;
+Costa Rica;Hong Kong;Malware;Lazarus;125;177;0;
+Costa Rica;Hong Kong;Phishing;Lazarus;398;13;0;
+Costa Rica;Grecia;Phishing;Sandworm;410;5;0
+Costa Rica;Kenya;Phishing;Lazarus;800;923;1;
+Costa Rica;EEUU;Phishing;Fancy bear;100;20;0;

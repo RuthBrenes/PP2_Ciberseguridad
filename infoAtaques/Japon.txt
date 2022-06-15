@@ -1,0 +1,3 @@
+Japon;Belgica;Malware;Lazarus;618;97;0;
+Japon;Guatemala;Malware;Lazarus;494;103;0;
+Japon;Kenya;Phishing;Lazarus;740;69;0;

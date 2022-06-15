@@ -1,1 +1,1 @@
-789012; Malware; Disenado para infectar y danar el equipo; Descarga de archivos;
+789012;Malware;Disenado para infectar y danar el equipo;Descarga de archivos;

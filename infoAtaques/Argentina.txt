@@ -1,1 +1,1 @@
-Argentina;Francia;Bomba logica;LuckyMouse;60;90;
+Argentina;Francia;Bomba logica;LuckyMouse;60;90;0;

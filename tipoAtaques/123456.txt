@@ -1,1 +1,1 @@
-123456; Phishing; Su objetivo es enganar a las personas para obtener datos confidenciales; Correo electronico;
+123456;Phishing;Su objetivo es enganar a las personas para obtener datos confidenciales;Correo electronico;

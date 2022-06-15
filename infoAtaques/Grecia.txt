@@ -1,0 +1,4 @@
+Grecia;Costa Rica;Malware;Sandworm;574;486;0;
+Grecia;Guatemala;Phishing;Lazarus;489;112;0;
+Grecia;Guatemala;Phishing;Lazarus;264;670;0;
+Grecia;Guatemala;Phishing;Sandworm;913;373;1;

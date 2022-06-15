@@ -1,0 +1,3 @@
+Belgica;Japon;Phishing;Lazarus;591;763;0;
+Belgica;Tonca; Malware;Sandworm;761;402;0;
+Belgica;Grecia;Lazarus;49;95;0;

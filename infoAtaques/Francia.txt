@@ -1,3 +1,3 @@
-Francia;EEUU;Malware;Fujie Wang;150;200;
-Francia;Argentina;Inyectores;Winnti;135;170;
-Francia;Rusia;Descarga oculta;Wizard Spider;85;100;
+Francia;EEUU;Malware;Fujie Wang;150;200;0;
+Francia;Argentina;Inyectores;Winnti;135;170;0;
+Francia;Rusia;Descarga oculta;Wizard Spider;85;100;0;

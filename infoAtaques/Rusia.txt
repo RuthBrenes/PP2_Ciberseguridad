@@ -1,1 +1,2 @@
-Rusia;EEUU;Spyware;Equation Group;45;70;
+Rusia;EEUU;Spyware;Equation Group;45;70;0;
+Rusia;EEUU;Macrovirus;GlobalHell;250;50;0;

@@ -1,0 +1,4 @@
+Kenya;Tonca;Phishing;Sandworm;609;471;0;
+Kenya;Kenya;Phishing;Sandworm;145;705;0;
+Kenya;Tonca;Phishing;Lazarus;984;417;0;
+Kenya;Guatemala;Malware;Lazarus;990;30;1;

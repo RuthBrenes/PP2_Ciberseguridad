@@ -1,0 +1,4 @@
+Guatemala;Costa Rica;Malware;Sandworm;701;691;0;
+Guatemala;Tonca;Phishing;Sandworm;159;246;0;
+Guatemala;Costa Rica;Malware;Lazarus;204;651;0;
+Guatemala;Guatemala;Phishing;Sandworm;350;103;0
